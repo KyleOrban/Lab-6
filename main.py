@@ -1,88 +1,44 @@
-class File:
-    className = 'File'
-    objectsCount = 0
+class Machine:
+    def __init__(self, productivity, cost, avg_part_price):
+        self.productivity = productivity
+        self.cost = cost
+        self.avg_part_price = avg_part_price
 
-    def __init__(self, name, kbs, type):
-        self._name = name
-        self._kbs = kbs
-        self._type = type
-        File.objectsCount = File.objectsCount + 1
+    def breakeven_parts(self):
+        return self.cost / self.avg_part_price
 
-    def get_name(self):
-        return self._name
+    def __add__(self, other):
+        if isinstance(other, Machine):
+            return self.cost + other.cost
+        return NotImplemented
 
-    def set_name(self, n):
-        self._name = n
+class MillingMachine(Machine):
+    def __init__(self, productivity, cost, avg_part_price, spindle_speed):
+        super().__init__(productivity, cost, avg_part_price)
+        self.spindle_speed = spindle_speed
 
-    def get_kbs(self):
-        return self._kbs
+    def payback_time(self, fixed_price):
+        return self.cost / (self.productivity * fixed_price)
 
-    def set_kbs(self, kbs):
-        if kbs > 0:
-            self._kbs = kbs
-        else:
-            self._kbs = 0.1
+class CNCMachine(Machine):
+    def __init__(self, productivity, cost, avg_part_price, precision_level):
+        super().__init__(productivity, cost, avg_part_price)
+        self.precision_level = precision_level
 
-    def type(self):
-        return self._type
+    def payback_time(self, fixed_price):
+        return self.cost / (self.productivity * fixed_price)
 
-    def info(self):
-        print(self._name)
-        print(f"Размер: {self._kbs} кб")
-        print(f'Формат: {self._type}')
+# пример использования:
+if __name__ == "__main__":
+    machine1 = MillingMachine(50, 20000, 10, 1200)
+    machine2 = CNCMachine(80, 50000, 15, 0.01)
 
-    def kbsToBytes(self):
-        print(f'Размер в байтах: {self._kbs * 1024}')
+    print("Milling Machine breakeven parts:", machine1.breakeven_parts())
+    print("CNC Machine breakeven parts:", machine2.breakeven_parts())
 
+    print("Milling Machine payback time:", machine1.payback_time(12), "hours")
+    print("CNC Machine payback time:", machine2.payback_time(20), "hours")
 
-class Image(File):
-    className = 'Image'
+    total_cost = machine1 + machine2
+    print("Total cost of both machines:", total_cost)
 
-    def __init__(self, name, kbs, type, height, width):
-        super().__init__(name, kbs, type)
-        self.height = height
-        self.width = width
-
-    def set_height(self, height):
-        if height > 0:
-            self.height = height
-        else:
-            self.height = 1
-
-    def set_width(self, width):
-        if width > 0:
-            self.width = width
-        else:
-            self.width = 1
-
-    def info(self):
-        super().info()
-        print(f'Тип: {Image.className}')
-        print(f"Высота (пкс): {self.height}")
-        print(f'Ширина (пкс): {self.width}')
-
-    def amount(self):
-        print(f'Площадь в пикселях: {self.height * self.width}')
-
-    def __eq__(self, other):
-        return self.height == other.height and self.width == other.width
-
-
-b = File("Объект класса " + File.className, 11, 'TXT')
-b.info()
-b.kbsToBytes()
-
-print('\n')
-
-im = Image('background.jpg', 44.1, 'JPG', 800, 600)
-im2 = Image('new_background.jpg', 42.8, 'JPG', 800, 600)
-
-im.amount()
-im.kbsToBytes()
-
-if (im == im2) is True:
-    print(f'{im.get_name()} и {im2.get_name()} равны.')
-else:
-    print(f'{im.get_name()} и {im2.get_name()} не равны.')
-
-print(f'Objects count: {File.objectsCount}')
